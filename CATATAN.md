@@ -83,3 +83,43 @@ Tidak ada credential nyata di repository ini. Credential yang kelak dibutuhkan h
 [1]: [Meta Developers — About the WhatsApp Business Platform](https://developers.facebook.com/documentation/business-messaging/whatsapp/about-the-platform)
 [2]: [Meta Developers — Cloud API Calling](https://developers.facebook.com/documentation/business-messaging/whatsapp/calling)
 [3]: [WhatsApp Business — Messaging Policy](https://whatsappbusiness.com/policy/)
+
+## Materi produk enterprise
+
+**Nama produk:** WA.W — WhatsApp Workspace  
+**Developer:** FrostByte Tech. Ltd  
+**Harga yang tercantum pada materi:** Rp450.000 per tahun  
+**Distribusi yang direncanakan:** di luar Play Store, melalui jalur resmi Meta atau distribusi terkontrol lainnya. Status verifikasi Meta, harga final, dan metode distribusi masih harus dibuktikan sebelum dipublikasikan.
+
+Materi promosi menyebut sepuluh kelompok kemampuan berikut sebagai target enterprise:
+
+| No. | Fitur | Rencana implementasi | Status verifikasi |
+|---:|---|---|---|
+| 1 | Remote Access PC | Agent desktop yang hanya aktif setelah persetujuan eksplisit, dengan device pairing, command allowlist, audit log, dan tombol putus darurat | Belum diverifikasi |
+| 2 | Fingerprint Authentication | Biometric prompt Android untuk membuka sesi lokal; tidak menggantikan autentikasi server | Belum diimplementasikan |
+| 3 | CamScanner Pro | Kamera, crop/deskew, OCR opsional, konversi PDF, dan watermark | Belum diimplementasikan |
+| 4 | Barcode/QR Scanner | Pemindaian untuk absensi, inventaris, atau verifikasi internal Workspace | Belum diimplementasikan |
+| 5 | Custom Watermark | Watermark diterapkan di server atau pipeline media sebelum file dibagikan | Belum diimplementasikan |
+| 6 | Integrasi resmi Meta | WhatsApp Cloud API resmi, webhook terverifikasi, template, dan status pesan; tidak menjamin bebas banned | Klaim resmi harus diverifikasi |
+| 7 | Real-time Location | Berbagi lokasi berbasis opt-in, indikator aktif, batas waktu, penghentian manual, dan kebijakan retensi | Belum diimplementasikan |
+| 8 | Anti-judol/anti-spam | Filter konten berbasis aturan dan/atau model, mekanisme false-positive review, serta perlindungan privasi | Belum diimplementasikan |
+| 9 | Enkripsi enterprise | Gunakan protokol dan library yang dapat diaudit; nama atau klaim “Gortex 1.1.3” belum memiliki bukti teknis | Belum diverifikasi |
+| 10 | Engine AI | Auto-reply, rangkuman, dan laporan dengan provider yang dipilih; data sensitif harus memiliki kontrol pemrosesan | Provider dan desain belum ditentukan |
+
+## Rekomendasi penggunaan enterprise
+
+| Peran | Fitur utama |
+|---|---|
+| Admin/CS | Integrasi kanal resmi Meta, filter spam, inbox Workspace, template, dan bantuan AI |
+| Manager/Owner | Workspace, audit log, watermark, remote access yang disetujui, dan lokasi berbasis opt-in |
+| Operasional | Scanner dokumen, PDF, barcode/QR, assignment, dan label |
+
+## Action item verifikasi
+
+Sebelum materi dipakai untuk promosi atau penjualan, pemilik produk perlu memverifikasi keaslian onboarding dan API Meta, menyediakan demo Remote Access dan Location Tracking, memastikan izin serta audit keamanannya, mengonfirmasi harga Rp450.000/tahun, menyediakan informasi trial, dan menjelaskan metode distribusi APK.
+
+Klaim **“Anti-Banned System”** tidak boleh dipasarkan sebagai jaminan. Penggunaan API resmi dapat mengurangi risiko teknis dari API tidak resmi, tetapi akun tetap tunduk pada kebijakan Meta, kualitas pesan, opt-in, template, limit, dan kemungkinan pembatasan atau penghentian akses.
+
+## Catatan distribusi
+
+Jika aplikasi tidak didistribusikan melalui Play Store, distribusi APK harus menjelaskan sumber unduhan, identitas penerbit, checksum, privacy policy, mekanisme update, dan peringatan keamanan. Untuk distribusi Play Store pada masa depan, aplikasi harus mengikuti persyaratan signing, Data safety, permission disclosure, dan kebijakan Google Play.
