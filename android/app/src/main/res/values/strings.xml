@@ -1,7 +1,0 @@
-<?xml version='1.0' encoding='utf-8'?>
-<resources>
-    <string name="app_name">WA.W Workspace</string>
-    <string name="title_activity_main">WA.W Workspace</string>
-    <string name="package_name">com.frostbyte.waw</string>
-    <string name="custom_url_scheme">com.frostbyte.waw</string>
-</resources>

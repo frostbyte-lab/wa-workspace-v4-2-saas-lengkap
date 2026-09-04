@@ -1,46 +1,85 @@
-# Catatan Repository WA.W
+# CATATAN — WA.W Messenger
 
-## Tujuan
+## Status proyek
 
-Repository ini dibuat untuk menyimpan dokumentasi awal **WA.W — WhatsApp Workspace**, termasuk perbedaan edisi Personal V4.1 dan SaaS V4.2, rancangan endpoint, fitur enterprise, paket harga yang tercantum pada materi sumber, serta arahan deployment.
+Repository ini sengaja dimulai sebagai **repository kosong berisi catatan proyek**. Belum ada APK, backend, database, atau credential yang dimasukkan. Implementasi kode baru dimulai setelah ruang lingkup dan keputusan arsitektur disetujui.
 
-## Catatan penting tentang materi sumber
+## Tujuan produk
 
-Berkas yang diterima berisi dokumentasi produk, bukan source code aplikasi. Oleh karena itu, repository ini belum dapat di-install atau dijalankan dengan `npm install` dan `npm start` sampai source code, `package.json`, konfigurasi runtime, dan pengujian ditambahkan.
+WA.W Messenger adalah aplikasi messenger mandiri untuk Android yang memiliki pengalaman penggunaan yang familiar seperti aplikasi pesan modern, dengan tambahan fitur Workspace untuk tim dan bisnis. Aplikasi ini memiliki sistem akun, kontak, percakapan, media, status sementara, panggilan, dan ruang kerja bisnis milik WA.W sendiri.
 
-Beberapa klaim fitur pada materi sumber, seperti pelacakan lokasi real-time, akses komputer jarak jauh, enkripsi proprietary, status verifikasi Meta, dan engine AI, harus dianggap sebagai **klaim produk yang belum diverifikasi**. Klaim tersebut tidak boleh dipasarkan sebagai fakta teknis atau kepatuhan resmi sebelum tersedia bukti implementasi, hasil audit, dan dokumentasi vendor yang relevan.
+Aplikasi ini **bukan klien WhatsApp pribadi**, bukan GBWhatsApp, dan tidak akan membongkar atau memakai API internal WhatsApp. Integrasi ke WhatsApp asli hanya dilakukan melalui WhatsApp Business Platform/Cloud API resmi Meta dan bersifat opsional untuk kebutuhan bisnis.
+
+## Ruang lingkup fitur
+
+| Modul | Fitur yang direncanakan |
+|---|---|
+| Akun | Registrasi, login, profil, foto profil, pemulihan akun, dan pengaturan privasi |
+| Kontak | Meminta izin Android `READ_CONTACTS`, menampilkan kontak yang dipilih pengguna, pencarian, dan undangan pengguna WA.W |
+| Chat | Pesan teks real-time, reply, forward, hapus, reaksi, pesan suara, dan indikator terkirim/terbaca |
+| Media | Foto, video, dokumen, kamera, kompresi, preview, dan penyimpanan object storage |
+| Panggilan | Voice call dan video call menggunakan WebRTC dengan signaling server serta TURN server |
+| Status | Membuat status foto/video/teks, melihat status kontak WA.W, masa aktif 24 jam, dan penghapusan otomatis |
+| Grup | Membuat grup, anggota, admin grup, nama/foto grup, mute, dan keluar grup |
+| Workspace | Workspace pribadi/bisnis, role owner/admin/agent, inbox tim, assignment percakapan, label, catatan internal, dan audit log |
+| Integrasi Meta | Pengiriman dan penerimaan pesan bisnis melalui Cloud API resmi, template, media, dan webhook |
+| Notifikasi | Push notification untuk pesan, mention, assignment, dan panggilan masuk |
+
+## Batasan integrasi WhatsApp resmi
+
+API resmi Meta tidak memberikan akses umum ke kontak pribadi, Status pribadi, chat pribadi, atau seluruh fungsi aplikasi WhatsApp. Karena itu, kontak dan status pada aplikasi WA.W adalah data milik platform WA.W sendiri.
+
+WhatsApp Business Platform digunakan hanya untuk kanal bisnis. Pengiriman harus mengikuti kebijakan opt-in, template pesan, customer-service window, quality rating, messaging limits, dan ketentuan lain dari Meta. Token Meta tidak boleh disimpan di APK, frontend, `localStorage`, log, atau repository.
+
+## Arsitektur yang direncanakan
+
+| Lapisan | Rencana |
+|---|---|
+| Aplikasi Android | React Native/Expo dengan modul native untuk kontak, kamera, media, push notification, dan WebRTC |
+| Backend API | Node.js/TypeScript dengan API autentikasi, chat, status, Workspace, dan integrasi Meta |
+| Real-time | WebSocket atau Socket.IO untuk pesan dan signaling panggilan |
+| Database | PostgreSQL/Supabase untuk akun, relasi kontak, pesan, status metadata, Workspace, role, dan audit log |
+| Media storage | Object storage S3-compatible untuk foto, video, dokumen, dan avatar |
+| Call relay | STUN/TURN server untuk koneksi WebRTC pada jaringan yang sulit |
+| Push | FCM untuk Android dan APNs bila kelak mendukung iOS |
+| Integrasi Meta | Graph API resmi dan webhook terverifikasi |
 
 ## Keamanan dan privasi
 
-Materi sumber memuat pengenal akun dan kode akses yang tampak sensitif. Nilai tersebut telah disamarkan dalam `DOKUMENTASI-SUMBER.md`. Jangan commit token WhatsApp, WABA ID, Phone Number ID produksi, kode remote access, API key, webhook secret, atau data pribadi pelanggan.
+Aplikasi harus menggunakan HTTPS, password hashing, session yang aman, validasi input, rate limiting, kontrol akses berbasis Workspace, isolasi tenant, enkripsi credential Meta, validasi signature webhook, audit log, backup, dan mekanisme penghapusan akun serta data.
 
-> Simpan secret hanya melalui secret manager atau environment variable yang terlindungi. Jika kredensial pernah dibagikan di tempat yang tidak semestinya, segera cabut dan rotasikan kredensial tersebut.
+Akses kontak harus diminta secara jelas dan hanya digunakan untuk fungsi yang disetujui pengguna. Aplikasi tidak boleh mengirim pesan otomatis kepada seluruh kontak tanpa tindakan dan persetujuan yang jelas dari pengguna.
 
-Rancangan multi-tenant harus menerapkan kontrol akses berbasis server, isolasi tenant pada setiap query, hashing atau enkripsi secret, proteksi CSRF bila relevan, validasi input, rate limiting, idempotency untuk pengiriman pesan, audit log, serta pengujian akses lintas-tenant.
+## Tahapan implementasi
 
-## Tindak lanjut teknis
-
-| Prioritas | Tindak lanjut | Kriteria selesai |
-|---|---|---|
-| Tinggi | Tambahkan source code dan `package.json` | Aplikasi dapat dibangun dari checkout bersih |
-| Tinggi | Implementasikan penyimpanan secret yang aman | Tidak ada token di frontend, log, atau Git |
-| Tinggi | Definisikan skema database tenant | Data dan kredensial antar pengguna terisolasi |
-| Tinggi | Verifikasi integrasi resmi Meta WhatsApp Business | Credential, webhook, dan error handling terdokumentasi |
-| Sedang | Tambahkan autentikasi admin dan quota enforcement | Endpoint admin tidak dapat diakses pengguna biasa |
-| Sedang | Tambahkan test suite dan CI | Pull request menjalankan lint, test, dan security checks |
-| Sedang | Tinjau klaim marketing dan harga | Semua klaim memiliki bukti dan persetujuan pemilik produk |
-
-## Status repository
-
-| Item | Status |
+| Tahap | Hasil yang diharapkan |
 |---|---|
-| Dokumentasi dasar | Selesai |
-| Redaksi informasi sensitif | Selesai pada salinan sumber |
-| Implementasi backend/frontend | Belum tersedia |
-| Database produksi | Belum tersedia |
-| Audit keamanan | Belum dilakukan |
-| Lisensi | Belum ditentukan |
+| 1 | Spesifikasi dan keputusan arsitektur disetujui |
+| 2 | Project Android dan backend dasar tersedia |
+| 3 | Akun, kontak, chat, media, dan status 24 jam berfungsi |
+| 4 | Voice/video call WebRTC dan push notification berfungsi |
+| 5 | Workspace, role, inbox tim, label, assignment, dan audit log berfungsi |
+| 6 | Integrasi Cloud API dan webhook resmi Meta diuji |
+| 7 | Signing APK/AAB, pengujian, privacy policy, dan persiapan Google Play |
 
-## References
+## Keputusan yang perlu dikonfirmasi
 
-[1]: `DOKUMENTASI-SUMBER.md` — Transkripsi materi sumber yang diberikan pengguna, dengan nilai sensitif disamarkan.
+| Keputusan | Nilai awal |
+|---|---|
+| Platform awal | Android APK |
+| Backend | Belum dipilih |
+| Database | Belum dipilih; PostgreSQL/Supabase direkomendasikan untuk awal |
+| Hosting | Belum dipilih |
+| Login | Belum dipilih; email/password dapat dipakai untuk prototipe |
+| Nama aplikasi | WA.W Messenger, dapat diubah sebelum release |
+| Integrasi Meta | Opsional, hanya melalui jalur resmi |
+
+## Credential
+
+Tidak ada credential nyata di repository ini. Credential yang kelak dibutuhkan harus dimasukkan melalui secret manager atau environment server. Jangan menyimpan access token Meta, App Secret, password database, signing keystore, atau private key di GitHub.
+
+## Referensi
+
+[1]: [Meta Developers — About the WhatsApp Business Platform](https://developers.facebook.com/documentation/business-messaging/whatsapp/about-the-platform)
+[2]: [Meta Developers — Cloud API Calling](https://developers.facebook.com/documentation/business-messaging/whatsapp/calling)
+[3]: [WhatsApp Business — Messaging Policy](https://whatsappbusiness.com/policy/)
