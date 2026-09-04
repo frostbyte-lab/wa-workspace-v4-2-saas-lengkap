@@ -9,9 +9,11 @@
     "test": "NODE_ENV=test node --test"
   },
   "dependencies": {
+    "@capacitor/android": "^7.6.9",
+    "@capacitor/cli": "^7.6.9",
+    "@capacitor/core": "^7.6.9",
     "express": "^4.21.2",
     "helmet": "^8.1.0",
     "zod": "^3.24.4"
   }
 }
-
