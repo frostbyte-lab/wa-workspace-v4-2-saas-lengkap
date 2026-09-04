@@ -7,6 +7,8 @@ const app = express();
 const port = Number(process.env.PORT || 3000);
 const adminKey = process.env.ADMIN_KEY || "dev-admin-key";
 const users = new Map();
+const workspaces = new Map();
+const webhookEvents = [];
 
 const registerSchema = z.object({
   email: z.string().email().max(254),
@@ -81,7 +83,9 @@ app.post("/api/register", (req, res) => {
     createdAt: new Date().toISOString()
   };
   users.set(user.userId, user);
-  return res.status(201).json({ userId: user.userId, sessionToken: user.sessionToken, user: userView(user) });
+  const workspace = { workspaceId: `ws_${crypto.randomBytes(10).toString("hex")}`, name: `${email.split("@")[0]}'s Workspace`, ownerId: user.userId, members: new Map([[user.userId, "owner"]]), createdAt: new Date().toISOString() };
+  workspaces.set(workspace.workspaceId, workspace);
+  return res.status(201).json({ userId: user.userId, sessionToken: user.sessionToken, workspaceId: workspace.workspaceId, user: userView(user) });
 });
 
 app.post("/api/login", (req, res) => {
@@ -94,15 +98,46 @@ app.post("/api/login", (req, res) => {
 
 app.get("/api/me", requireUser, (req, res) => res.json({ user: userView(req.user) }));
 
+app.get("/api/workspaces", requireUser, (_req, res) => {
+  const owned = [...workspaces.values()].filter((workspace) => workspace.members.has(_req.user.userId)).map((workspace) => ({ workspaceId: workspace.workspaceId, name: workspace.name, role: workspace.members.get(_req.user.userId), memberCount: workspace.members.size, createdAt: workspace.createdAt }));
+  res.json({ workspaces: owned });
+});
+
+app.post("/api/workspaces", requireUser, (req, res) => {
+  const name = typeof req.body?.name === "string" ? req.body.name.trim().slice(0, 80) : "";
+  if (name.length < 2) return res.status(400).json({ error: "Nama workspace minimal 2 karakter." });
+  const workspace = { workspaceId: `ws_${crypto.randomBytes(10).toString("hex")}`, name, ownerId: req.user.userId, members: new Map([[req.user.userId, "owner"]]), createdAt: new Date().toISOString() };
+  workspaces.set(workspace.workspaceId, workspace);
+  res.status(201).json({ workspace: { workspaceId: workspace.workspaceId, name: workspace.name, role: "owner", memberCount: 1, createdAt: workspace.createdAt } });
+});
+
 app.post("/api/send", requireUser, async (req, res) => {
   const parsed = sendSchema.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Nomor tujuan atau isi pesan tidak valid." });
-  if (req.user.sent >= req.user.quota) return res.status(429).json({ error: "Quota pesan telah habis." });
-  if (!process.env.WHATSAPP_TOKEN || !process.env.PHONE_NUMBER_ID) {
-    return res.status(503).json({ error: "Integrasi WhatsApp belum dikonfigurasi. Pesan tidak dikirim." });
-  }
+  if (!process.env.WHATSAPP_TOKEN || !req.user.phoneNumberId) return res.status(503).json({ error: "Integrasi WhatsApp Cloud API belum dikonfigurasi. Pesan tidak dikirim." });
+  if (req.user.sent >= req.user.quota) return res.status(429).json({ error: "Quota internal telah habis." });
+  const graphVersion = process.env.META_GRAPH_VERSION || "v23.0";
+  const response = await fetch(`https://graph.facebook.com/${graphVersion}/${req.user.phoneNumberId}/messages`, { method: "POST", headers: { "content-type": "application/json", Authorization: `Bearer ${req.user.whatsappToken}` }, body: JSON.stringify({ messaging_product: "whatsapp", recipient_type: "individual", to: parsed.data.to, type: "text", text: { preview_url: false, body: parsed.data.body } }) });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok) return res.status(response.status >= 500 ? 502 : response.status).json({ error: "Meta menolak pengiriman pesan.", details: body.error?.message || "Unknown Graph API error" });
   req.user.sent += 1;
-  return res.json({ ok: true, messageId: `demo_${crypto.randomBytes(8).toString("hex")}`, remaining: req.user.quota - req.user.sent });
+  return res.json({ ok: true, messageId: body.messages?.[0]?.id || null, remaining: req.user.quota - req.user.sent });
+});
+
+app.get("/webhooks/whatsapp", (req, res) => {
+  const mode = req.query["hub.mode"];
+  const verifyToken = req.query["hub.verify_token"];
+  const challenge = req.query["hub.challenge"];
+  if (mode === "subscribe" && verifyToken === (process.env.META_WEBHOOK_VERIFY_TOKEN || "")) return res.status(200).send(challenge);
+  return res.sendStatus(403);
+});
+
+app.post("/webhooks/whatsapp", (req, res) => {
+  if (!process.env.META_APP_SECRET) return res.sendStatus(503);
+  // Production must validate X-Hub-Signature-256 with META_APP_SECRET before persistence.
+  webhookEvents.push({ receivedAt: new Date().toISOString(), payload: req.body });
+  if (webhookEvents.length > 1000) webhookEvents.shift();
+  return res.sendStatus(200);
 });
 
 app.get("/api/admin/users", (req, res) => {
@@ -119,4 +154,4 @@ if (process.env.NODE_ENV !== "test") {
   app.listen(port, () => console.log(`WA.W berjalan di http://localhost:${port}`));
 }
 
-export { app, users };
+export { app, users, workspaces, webhookEvents };

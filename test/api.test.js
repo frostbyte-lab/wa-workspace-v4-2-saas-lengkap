@@ -38,3 +38,16 @@ test("admin endpoint menolak key yang salah", async () => {
   const response = await fetch(`${baseUrl}/api/admin/users`, { headers: { "x-admin-key": "wrong" } });
   assert.equal(response.status, 403);
 });
+
+test("workspace dapat dibuat dan dibaca oleh user", async () => {
+  const user = [...users.values()][0];
+  const create = await fetch(`${baseUrl}/api/workspaces`, { method: "POST", headers: { "content-type": "application/json", "x-user-id": user.userId, "x-session-token": user.sessionToken }, body: JSON.stringify({ name: "Support Team" }) });
+  assert.equal(create.status, 201);
+  const list = await fetch(`${baseUrl}/api/workspaces`, { headers: { "x-user-id": user.userId, "x-session-token": user.sessionToken } });
+  assert.equal((await list.json()).workspaces.length, 2);
+});
+
+test("webhook menolak token verifikasi yang salah", async () => {
+  const response = await fetch(`${baseUrl}/webhooks/whatsapp?hub.mode=subscribe&hub.verify_token=wrong&hub.challenge=123`);
+  assert.equal(response.status, 403);
+});

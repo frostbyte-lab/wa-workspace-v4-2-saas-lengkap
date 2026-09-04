@@ -15,6 +15,8 @@ Starter implementation untuk **WA.W SaaS V4.2**, berdasarkan dokumentasi produk 
 | Admin users | Selesai | Dilindungi `x-admin-key` |
 | WhatsApp Cloud API | Belum aktif | Endpoint mengembalikan 503 jika environment variable belum tersedia |
 | Database produksi | Belum tersedia | Ganti `Map` di `api/index.js` dengan database terenkripsi |
+| Workspace | Starter | Membuat dan menampilkan workspace milik user |
+| Webhook Meta | Starter | Endpoint verifikasi dan penerimaan event; signature validation wajib ditambahkan sebelum produksi |
 
 ## Menjalankan secara lokal
 
@@ -52,6 +54,9 @@ Simpan nilai tersebut di environment runtime atau secret manager, bukan di repos
 | `POST` | `/api/login` | Login menggunakan `userId` |
 | `POST` | `/api/send` | Mengirim pesan dengan identitas pengguna melalui header `x-user-id` |
 | `GET` | `/api/admin/users` | Menampilkan jumlah atau daftar pengguna untuk kebutuhan administrasi |
+| `GET` | `/api/workspaces` | Menampilkan workspace user yang sedang login |
+| `POST` | `/api/workspaces` | Membuat workspace baru |
+| `GET/POST` | `/webhooks/whatsapp` | Verifikasi dan penerimaan event webhook Meta |
 
 Implementasi produksi perlu mengganti penyimpanan objek `USERS {}` dengan database yang aman. Setiap tenant harus memiliki isolasi data dan kredensial yang kuat. Token tidak boleh disimpan di frontend, `localStorage`, log, atau repository.
 
@@ -82,9 +87,11 @@ Sebelum deployment, lakukan audit keamanan, verifikasi kepatuhan terhadap kebija
 
 | Berkas | Keterangan |
 |---|---|
-| `api/index.js` | Express API, validasi, sesi demo, quota, dan endpoint admin |
+| `api/index.js` | Express API, validasi, sesi demo, quota, Workspace, webhook, dan integrasi Graph API |
 | `public/index.html` | Dashboard frontend |
-| `test/api.test.js` | Smoke tests endpoint utama |
+| `test/api.test.js` | Smoke tests endpoint utama | 
+| `ARCHITECTURE.md` | Batasan dan arsitektur jalur resmi Meta | 
+| `.env.example` | Contoh konfigurasi tanpa credential nyata |
 | `README.md` | Dokumentasi implementasi dan rancangan teknis |
 | `CATATAN.md` | Catatan editorial, keamanan, dan tindak lanjut |
 | `DOKUMENTASI-SUMBER.md` | Transkripsi materi sumber dengan kredensial sensitif disamarkan |

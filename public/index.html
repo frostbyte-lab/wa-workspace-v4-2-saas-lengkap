@@ -48,6 +48,11 @@
           <p class="muted">Untuk produksi, ganti store memori dengan database terenkripsi dan gunakan session cookie yang aman.</p>
         </section>
         <section>
+          <h2>Workspace tim</h2>
+          <form id="workspace"><label>Nama workspace<input name="name" placeholder="Customer Support" required /></label><button>Buat workspace</button></form>
+          <div id="workspaceList" class="status">Login untuk melihat workspace.</div>
+        </section>
+        <section>
           <h2>Kirim pesan</h2>
           <form id="send">
             <label>Nomor tujuan<input name="to" placeholder="+628123456789" required /></label>
@@ -66,7 +71,10 @@
       const saveSession = (data) => { session = { userId: data.userId, sessionToken: data.sessionToken }; sessionStorage.setItem('waw_session', JSON.stringify(session)); status('account', `${data.user.email}\nPaket ${data.user.plan.toUpperCase()} · ${data.user.remaining.toLocaleString('id-ID')} pesan tersisa\nUser ID: ${data.userId}`); };
       document.getElementById('register').onsubmit = async (event) => { event.preventDefault(); const data = Object.fromEntries(new FormData(event.target)); try { const result = await request('/api/register', { method: 'POST', body: JSON.stringify(data) }); saveSession(result); status('globalStatus', 'Workspace berhasil dibuat. Simpan User ID untuk login berikutnya.'); event.target.reset(); } catch (error) { status('globalStatus', error.message); } };
       document.getElementById('login').onsubmit = async (event) => { event.preventDefault(); try { const result = await request('/api/login', { method: 'POST', body: JSON.stringify(Object.fromEntries(new FormData(event.target))) }); saveSession(result); status('globalStatus', 'Login berhasil.'); } catch (error) { status('globalStatus', error.message); } };
+      const loadWorkspaces = async () => { if (!session) return; try { const result = await request('/api/workspaces', { headers: { 'x-user-id': session.userId, 'x-session-token': session.sessionToken } }); status('workspaceList', result.workspaces.map((item) => `${item.name} · ${item.role} · ${item.memberCount} anggota`).join('\\n') || 'Belum ada workspace.'); } catch (error) { status('workspaceList', error.message); } };
+      document.getElementById('workspace').onsubmit = async (event) => { event.preventDefault(); if (!session) return status('workspaceList', 'Silakan login terlebih dahulu.'); try { await request('/api/workspaces', { method: 'POST', headers: { 'x-user-id': session.userId, 'x-session-token': session.sessionToken }, body: JSON.stringify(Object.fromEntries(new FormData(event.target))) }); await loadWorkspaces(); event.target.reset(); } catch (error) { status('workspaceList', error.message); } };
       document.getElementById('send').onsubmit = async (event) => { event.preventDefault(); if (!session) return status('sendStatus', 'Silakan login terlebih dahulu.'); try { const result = await request('/api/send', { method: 'POST', headers: { 'x-user-id': session.userId, 'x-session-token': session.sessionToken }, body: JSON.stringify(Object.fromEntries(new FormData(event.target))) }); status('sendStatus', `Pesan diterima. Sisa quota: ${result.remaining.toLocaleString('id-ID')}`); event.target.reset(); } catch (error) { status('sendStatus', error.message); } };
+          loadWorkspaces();
     </script>
   </body>
 </html>
