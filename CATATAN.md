@@ -1,125 +1,143 @@
-# CATATAN — WA.W Messenger
+# WAW WORKSPACE — CATATAN LENGKAP FINAL (VERSI WEB UJI COBA)
 
-## Status proyek
+## System UI Tetap, Jalan Kayak WA Pada Umumnya
 
-Repository ini sengaja dimulai sebagai **repository kosong berisi catatan proyek**. Belum ada APK, backend, database, atau credential yang dimasukkan. Implementasi kode baru dimulai setelah ruang lingkup dan keputusan arsitektur disetujui.
+**URL Live:** https://waw-workspace-review.pages.dev/
 
-## Tujuan produk
+**Halaman aktif:** `/data-deletion/` sebagai bukti fitur koneksi, kontak, percakapan, pesan, dan webhook.
 
-WA.W Messenger adalah aplikasi messenger mandiri untuk Android yang memiliki pengalaman penggunaan yang familiar seperti aplikasi pesan modern, dengan tambahan fitur Workspace untuk tim dan bisnis. Aplikasi ini memiliki sistem akun, kontak, percakapan, media, status sementara, panggilan, dan ruang kerja bisnis milik WA.W sendiri.
+**Prinsip:** UI asli WAW dipertahankan 100%, login menggunakan OTP, dan fitur dirancang agar berjalan seperti WhatsApp pada umumnya.
 
-Aplikasi ini **bukan klien WhatsApp pribadi**, bukan GBWhatsApp, dan tidak akan membongkar atau memakai API internal WhatsApp. Integrasi ke WhatsApp asli hanya dilakukan melalui WhatsApp Business Platform/Cloud API resmi Meta dan bersifat opsional untuk kebutuhan bisnis.
+> **Penting:** Versi web ini hanya sistem uji coba, pengecekan, dan preview. Jika seluruh alur berjalan baik di web, versi utama akan diterapkan pada APK dengan tampilan, fitur, dan sistem yang sama.
 
-## Ruang lingkup fitur
+**Web = Preview dan Testing | APK = Produk Utama**
 
-| Modul | Fitur yang direncanakan |
+## 1. Tujuan Versi Web Uji Coba
+
+Versi web digunakan untuk memeriksa login OTP, meninjau detail UI WAW, menguji koneksi, kontak, percakapan, pesan, webhook, panggilan, dan video call, serta melakukan demo kepada tim atau calon pengguna sebelum instalasi APK. Versi web juga digunakan untuk kebutuhan verifikasi domain Meta karena menyediakan URL live.
+
+Versi web bukan produk utama, bukan untuk penggunaan harian skala besar, dan data web hanya digunakan untuk testing. Data utama direncanakan berada pada APK.
+
+Alur pengembangan:
+
+```text
+Versi WEB Uji Coba → Check & Preview → OK → Build VERSI APK Utama
+```
+
+Semua tampilan, fitur, dan sistem yang disetujui pada web harus diterapkan pada APK utama dengan tampilan dan perilaku yang sama.
+
+## 2. Login — OTP Sederhana
+
+Alur login yang ditargetkan:
+
+```text
+Buka WAW Web Uji Coba → Input nomor HP → Kirim OTP → Input OTP 6 digit → Masuk Workspace
+```
+
+Tidak menggunakan password, verifikasi email, upload NIB/NPWP, atau proses persetujuan bisnis untuk alur preview.
+
+Teknologi yang direncanakan: Firebase Phone Authentication.
+
+```js
+signInWithPhoneNumber(auth, phoneNumber)
+confirmationResult.confirm(otp)
+```
+
+## 3. UI WAW yang Dipertahankan
+
+Layout utama harus tetap mengikuti sistem UI WAW:
+
+```text
+[HEADER] WAW Workspace | Search | Call | VC | Titik Tiga
+[SIDEBAR KIRI 30%]              [CHAT KANAN 70%]
+- Search Chat                    - Nama Kontak + Status Online
+- Filter: Semua, Belum Dibaca    - Bubble Chat seperti WhatsApp
+- List Chat                      - Input emoji, file, voice note
+                                 - Tombol Call dan Video Call
+```
+
+Perubahan UI tidak boleh menghapus branding WAW, layout utama, warna, bubble chat, navigasi, atau fitur workspace yang telah disepakati.
+
+## 4. Fitur yang Harus Diuji
+
+| Fitur | Kebutuhan |
 |---|---|
-| Akun | Registrasi, login, profil, foto profil, pemulihan akun, dan pengaturan privasi |
-| Kontak | Meminta izin Android `READ_CONTACTS`, menampilkan kontak yang dipilih pengguna, pencarian, dan undangan pengguna WA.W |
-| Chat | Pesan teks real-time, reply, forward, hapus, reaksi, pesan suara, dan indikator terkirim/terbaca |
-| Media | Foto, video, dokumen, kamera, kompresi, preview, dan penyimpanan object storage |
-| Panggilan | Voice call dan video call menggunakan WebRTC dengan signaling server serta TURN server |
-| Status | Membuat status foto/video/teks, melihat status kontak WA.W, masa aktif 24 jam, dan penghapusan otomatis |
-| Grup | Membuat grup, anggota, admin grup, nama/foto grup, mute, dan keluar grup |
-| Workspace | Workspace pribadi/bisnis, role owner/admin/agent, inbox tim, assignment percakapan, label, catatan internal, dan audit log |
-| Integrasi Meta | Pengiriman dan penerimaan pesan bisnis melalui Cloud API resmi, template, media, dan webhook |
-| Notifikasi | Push notification untuk pesan, mention, assignment, dan panggilan masuk |
+| Koneksi | Status terhubung, menghubungkan, dan offline |
+| Kontak | Foto profil, nama, dan nomor HP |
+| Percakapan | Bubble kiri/kanan, status terkirim, diterima, dan dibaca |
+| Pesan | Teks, gambar, video, file, dan voice note |
+| Panggilan | Voice call dan video call |
+| Workspace | Grup, status, template, webhook, dan pengaturan |
 
-## Batasan integrasi WhatsApp resmi
+Fitur yang belum selesai harus ditandai sebagai testing atau roadmap, bukan dianggap sudah tersedia.
 
-API resmi Meta tidak memberikan akses umum ke kontak pribadi, Status pribadi, chat pribadi, atau seluruh fungsi aplikasi WhatsApp. Karena itu, kontak dan status pada aplikasi WA.W adalah data milik platform WA.W sendiri.
+## 5. Web Uji Coba dan APK Utama
 
-WhatsApp Business Platform digunakan hanya untuk kanal bisnis. Pengiriman harus mengikuti kebijakan opt-in, template pesan, customer-service window, quality rating, messaging limits, dan ketentuan lain dari Meta. Token Meta tidak boleh disimpan di APK, frontend, `localStorage`, log, atau repository.
+| Aspek | Web Uji Coba | APK Utama |
+|---|---|---|
+| Tujuan | Check, preview, dan testing | Produk utama dan pemakaian harian |
+| Lokasi | https://waw-workspace-review.pages.dev/ | Play Store atau direct install resmi |
+| Login | OTP Firebase | OTP Firebase |
+| Tampilan | UI WAW asli | UI WAW asli dan sama |
+| Data | Testing atau dummy | Data asli pengguna |
+| Koneksi | Browser dan internet | Native, background service, dan push notification |
+| Call/VC | WebRTC browser | Native WebRTC yang lebih stabil |
+| Status | Sementara | Versi utama |
 
-## Arsitektur yang direncanakan
+Prinsip utama: apa yang disetujui dan berjalan di web harus tersedia di APK dengan tampilan dan sistem yang identik, dengan penyesuaian yang memang diwajibkan oleh platform.
 
-| Lapisan | Rencana |
-|---|---|
-| Aplikasi Android | React Native/Expo dengan modul native untuk kontak, kamera, media, push notification, dan WebRTC |
-| Backend API | Node.js/TypeScript dengan API autentikasi, chat, status, Workspace, dan integrasi Meta |
-| Real-time | WebSocket atau Socket.IO untuk pesan dan signaling panggilan |
-| Database | PostgreSQL/Supabase untuk akun, relasi kontak, pesan, status metadata, Workspace, role, dan audit log |
-| Media storage | Object storage S3-compatible untuk foto, video, dokumen, dan avatar |
-| Call relay | STUN/TURN server untuk koneksi WebRTC pada jaringan yang sulit |
-| Push | FCM untuk Android dan APNs bila kelak mendukung iOS |
-| Integrasi Meta | Graph API resmi dan webhook terverifikasi |
+## 6. Tahapan Kerja
 
-## Keamanan dan privasi
+### Tahap 1 — Web Uji Coba
 
-Aplikasi harus menggunakan HTTPS, password hashing, session yang aman, validasi input, rate limiting, kontrol akses berbasis Workspace, isolasi tenant, enkripsi credential Meta, validasi signature webhook, audit log, backup, dan mekanisme penghapusan akun serta data.
+1. Pengguna membuka https://waw-workspace-review.pages.dev/.
+2. Pengguna memasukkan nomor HP dan OTP.
+3. Pengguna masuk ke preview workspace.
+4. Tim memeriksa UI, chat, koneksi, call, dan video call.
+5. Feedback dan perbaikan diterapkan pada web.
 
-Akses kontak harus diminta secara jelas dan hanya digunakan untuk fungsi yang disetujui pengguna. Aplikasi tidak boleh mengirim pesan otomatis kepada seluruh kontak tanpa tindakan dan persetujuan yang jelas dari pengguna.
+### Tahap 2 — APK Utama
 
-## Tahapan implementasi
+1. APK dibangun dengan tampilan dan fitur yang telah disetujui pada web.
+2. Pengguna menginstal APK.
+3. Pengguna login dengan OTP yang sama.
+4. Workspace, chat, kontak, dan riwayat disinkronkan jika backend telah siap.
+5. APK menjadi versi utama untuk penggunaan sehari-hari.
 
-| Tahap | Hasil yang diharapkan |
-|---|---|
-| 1 | Spesifikasi dan keputusan arsitektur disetujui |
-| 2 | Project Android dan backend dasar tersedia |
-| 3 | Akun, kontak, chat, media, dan status 24 jam berfungsi |
-| 4 | Voice/video call WebRTC dan push notification berfungsi |
-| 5 | Workspace, role, inbox tim, label, assignment, dan audit log berfungsi |
-| 6 | Integrasi Cloud API dan webhook resmi Meta diuji |
-| 7 | Signing APK/AAB, pengujian, privacy policy, dan persiapan Google Play |
+## 7. File dan Halaman yang Harus Ada
 
-## Keputusan yang perlu dikonfirmasi
+Pada web uji coba:
 
-| Keputusan | Nilai awal |
-|---|---|
-| Platform awal | Android APK |
-| Backend | Belum dipilih |
-| Database | Belum dipilih; PostgreSQL/Supabase direkomendasikan untuk awal |
-| Hosting | Belum dipilih |
-| Login | Belum dipilih; email/password dapat dipakai untuk prototipe |
-| Nama aplikasi | WA.W Messenger, dapat diubah sebelum release |
-| Integrasi Meta | Opsional, hanya melalui jalur resmi |
+- `index.html` untuk login OTP dan tidak boleh 404.
+- `/workspace/` untuk UI utama WAW.
+- `/data-deletion/` sebagai halaman penghapusan data.
+- `/privacy/` untuk kebijakan privasi.
+- `/terms/` untuk ketentuan penggunaan.
 
-## Credential
+Pada APK utama:
 
-Tidak ada credential nyata di repository ini. Credential yang kelak dibutuhkan harus dimasukkan melalui secret manager atau environment server. Jangan menyimpan access token Meta, App Secret, password database, signing keystore, atau private key di GitHub.
+- Login OTP.
+- Workspace.
+- Kontak.
+- Chat.
+- Panggilan dan video call.
+- Pengaturan.
 
-## Referensi
+## 8. Status Implementasi
 
-[1]: [Meta Developers — About the WhatsApp Business Platform](https://developers.facebook.com/documentation/business-messaging/whatsapp/about-the-platform)
-[2]: [Meta Developers — Cloud API Calling](https://developers.facebook.com/documentation/business-messaging/whatsapp/calling)
-[3]: [WhatsApp Business — Messaging Policy](https://whatsappbusiness.com/policy/)
+Dokumen ini adalah catatan arah produk dan pengujian. Fitur yang belum benar-benar diuji pada URL live atau APK tidak boleh dianggap selesai. Setiap fitur baru wajib melalui implementasi, build, test, dan pemeriksaan keamanan sebelum dinyatakan aktif.
 
-## Materi produk enterprise
+## Kesimpulan
 
-**Nama produk:** WA.W — WhatsApp Workspace  
-**Developer:** FrostByte Tech. Ltd  
-**Harga yang tercantum pada materi:** Rp450.000 per tahun  
-**Distribusi yang direncanakan:** di luar Play Store, melalui jalur resmi Meta atau distribusi terkontrol lainnya. Status verifikasi Meta, harga final, dan metode distribusi masih harus dibuktikan sebelum dipublikasikan.
+- Versi web digunakan untuk preview dan testing.
+- APK menjadi produk utama.
+- UI WAW dipertahankan dan tidak boleh diubah tanpa keputusan baru.
+- Login ditargetkan menggunakan nomor HP dan OTP.
+- Sistem diarahkan untuk menyediakan chat, kontak, koneksi, panggilan, video call, grup, status, template, webhook, dan pengaturan.
+- Semua fitur yang disetujui di web harus diterapkan pada APK dengan tampilan dan sistem yang sama.
 
-Materi promosi menyebut sepuluh kelompok kemampuan berikut sebagai target enterprise:
+## Link
 
-| No. | Fitur | Rencana implementasi | Status verifikasi |
-|---:|---|---|---|
-| 1 | Remote Access PC | Agent desktop yang hanya aktif setelah persetujuan eksplisit, dengan device pairing, command allowlist, audit log, dan tombol putus darurat | Belum diverifikasi |
-| 2 | Fingerprint Authentication | Biometric prompt Android untuk membuka sesi lokal; tidak menggantikan autentikasi server | Belum diimplementasikan |
-| 3 | CamScanner Pro | Kamera, crop/deskew, OCR opsional, konversi PDF, dan watermark | Belum diimplementasikan |
-| 4 | Barcode/QR Scanner | Pemindaian untuk absensi, inventaris, atau verifikasi internal Workspace | Belum diimplementasikan |
-| 5 | Custom Watermark | Watermark diterapkan di server atau pipeline media sebelum file dibagikan | Belum diimplementasikan |
-| 6 | Integrasi resmi Meta | WhatsApp Cloud API resmi, webhook terverifikasi, template, dan status pesan; tidak menjamin bebas banned | Klaim resmi harus diverifikasi |
-| 7 | Real-time Location | Berbagi lokasi berbasis opt-in, indikator aktif, batas waktu, penghentian manual, dan kebijakan retensi | Belum diimplementasikan |
-| 8 | Anti-judol/anti-spam | Filter konten berbasis aturan dan/atau model, mekanisme false-positive review, serta perlindungan privasi | Belum diimplementasikan |
-| 9 | Enkripsi enterprise | Gunakan protokol dan library yang dapat diaudit; nama atau klaim “Gortex 1.1.3” belum memiliki bukti teknis | Belum diverifikasi |
-| 10 | Engine AI | Auto-reply, rangkuman, dan laporan dengan provider yang dipilih; data sensitif harus memiliki kontrol pemrosesan | Provider dan desain belum ditentukan |
-
-## Rekomendasi penggunaan enterprise
-
-| Peran | Fitur utama |
-|---|---|
-| Admin/CS | Integrasi kanal resmi Meta, filter spam, inbox Workspace, template, dan bantuan AI |
-| Manager/Owner | Workspace, audit log, watermark, remote access yang disetujui, dan lokasi berbasis opt-in |
-| Operasional | Scanner dokumen, PDF, barcode/QR, assignment, dan label |
-
-## Action item verifikasi
-
-Sebelum materi dipakai untuk promosi atau penjualan, pemilik produk perlu memverifikasi keaslian onboarding dan API Meta, menyediakan demo Remote Access dan Location Tracking, memastikan izin serta audit keamanannya, mengonfirmasi harga Rp450.000/tahun, menyediakan informasi trial, dan menjelaskan metode distribusi APK.
-
-Klaim **“Anti-Banned System”** tidak boleh dipasarkan sebagai jaminan. Penggunaan API resmi dapat mengurangi risiko teknis dari API tidak resmi, tetapi akun tetap tunduk pada kebijakan Meta, kualitas pesan, opt-in, template, limit, dan kemungkinan pembatasan atau penghentian akses.
-
-## Catatan distribusi
-
-Jika aplikasi tidak didistribusikan melalui Play Store, distribusi APK harus menjelaskan sumber unduhan, identitas penerbit, checksum, privacy policy, mekanisme update, dan peringatan keamanan. Untuk distribusi Play Store pada masa depan, aplikasi harus mengikuti persyaratan signing, Data safety, permission disclosure, dan kebijakan Google Play.
+- **Web Uji Coba:** https://waw-workspace-review.pages.dev/
+- **Data Deletion:** https://waw-workspace-review.pages.dev/data-deletion/
+- **Email Penghapusan:** projekmii23@gmail.com
